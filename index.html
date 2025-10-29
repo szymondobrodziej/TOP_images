@@ -1127,6 +1127,7 @@
                 
                 for (const product of productsToDownload) {
                     const productName = sanitizeFilename(product.attributes['Numer_katalogowy'] || product.name);
+                    const catalogNumber = sanitizeFilename(product.attributes['Numer_katalogowy'] || 'product');
                     const folder = zip.folder(productName);
                     
                     const images = imageType === 'main' 
@@ -1150,7 +1151,7 @@
                             const blob = await response.blob();
                             const ext = getFileExtension(imageUrl);
                             const filename = i === 0 && imageType === 'all' 
-                                ? `main${ext}` 
+                                ? `main_${catalogNumber}${ext}` 
                                 : `${i + 1}${ext}`;
                             
                             folder.file(filename, blob);
