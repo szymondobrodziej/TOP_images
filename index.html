@@ -1079,6 +1079,16 @@
                 const zip = new JSZip();
                 const productsToDownload = allProducts.filter(p => selectedProducts.has(p.id));
                 let processed = 0;
+                let totalImages = 0;
+                let downloadedImages = 0;
+                
+                // Count total images
+                for (const product of productsToDownload) {
+                    const images = imageType === 'main' 
+                        ? [product.images.main].filter(Boolean)
+                        : product.images.all;
+                    totalImages += images.length;
+                }
                 
                 for (const product of productsToDownload) {
                     const folderName = sanitizeFilename(product.attributes['Numer_katalogowy'] || product.name);
@@ -1093,7 +1103,15 @@
                         if (!imageUrl) continue;
                         
                         try {
-                            const response = await fetch(imageUrl);
+                            // Use CORS proxy for images
+                            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(imageUrl)}`;
+                            const response = await fetch(proxyUrl);
+                            
+                            if (!response.ok) {
+                                console.error(`Błąd HTTP ${response.status} dla ${imageUrl}`);
+                                continue;
+                            }
+                            
                             const blob = await response.blob();
                             const ext = getFileExtension(imageUrl);
                             const filename = i === 0 && imageType === 'all' 
@@ -1101,16 +1119,19 @@
                                 : `${i + 1}${ext}`;
                             
                             folder.file(filename, blob);
+                            downloadedImages++;
+                            
+                            const progress = Math.round((downloadedImages / totalImages) * 100);
+                            document.getElementById('progressFill').style.width = progress + '%';
+                            document.getElementById('progressText').textContent = 
+                                `Pobieranie zdjęć ${downloadedImages}/${totalImages}...`;
+                                
                         } catch (err) {
                             console.error(`Błąd pobierania ${imageUrl}:`, err);
                         }
                     }
                     
                     processed++;
-                    const progress = Math.round((processed / productsToDownload.length) * 100);
-                    document.getElementById('progressFill').style.width = progress + '%';
-                    document.getElementById('progressText').textContent = 
-                        `Przetwarzanie ${processed}/${productsToDownload.length}...`;
                 }
                 
                 document.getElementById('progressText').textContent = 'Generowanie archiwum...';
@@ -1121,9 +1142,11 @@
                 link.download = `produkty_${new Date().toISOString().slice(0, 10)}.zip`;
                 link.click();
                 
-                progressContainer.classList.remove('active');
-                downloadBtn.disabled = false;
-                downloadBtn.textContent = '📥 Pobierz zaznaczone';
+                setTimeout(() => {
+                    progressContainer.classList.remove('active');
+                    downloadBtn.disabled = false;
+                    downloadBtn.textContent = '📥 Pobierz zaznaczone';
+                }, 500);
                 
             } catch (err) {
                 alert('Wystąpił błąd podczas pobierania zdjęć: ' + err.message);
