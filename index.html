@@ -993,7 +993,6 @@
                         <span class="product-category">${product.category}</span>
                         <h3 class="product-name">${product.name}</h3>
                         <div class="product-details">
-                            <span class="product-price">${product.price.toFixed(2)} zł</span>
                             <span class="product-stock ${getStockClass(product.stock)}">
                                 ${getStockText(product.stock)}
                             </span>
@@ -1210,7 +1209,7 @@
             if (!product) return;
             
             document.getElementById('modalTitle').textContent = product.name;
-            document.getElementById('modalPrice').textContent = `${product.price.toFixed(2)} zł`;
+            document.getElementById('modalPrice').style.display = 'none';
             document.getElementById('modalDescription').innerHTML = product.description || 'No description available';
             document.getElementById('modalTechDesc').innerHTML = product.techDescription || 'No specifications available';
             
