@@ -1090,8 +1090,12 @@
                     totalImages += images.length;
                 }
                 
+                // Create timestamp for folder structure
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                
                 for (const product of productsToDownload) {
-                    const folderName = sanitizeFilename(product.attributes['Numer_katalogowy'] || product.name);
+                    const productName = sanitizeFilename(product.attributes['Numer_katalogowy'] || product.name);
+                    const folderName = `${timestamp}_${productName}`;
                     const folder = zip.folder(folderName);
                     
                     const images = imageType === 'main' 
