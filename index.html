@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katalog Produktów - TOP Meble</title>
+    <title>TOP Furniture Product Catalog</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         * {
@@ -621,8 +621,8 @@
 <body>
     <header>
         <div class="container">
-            <h1>🛋️ Katalog Produktów TOP Meble</h1>
-            <p>Nowoczesne meble dla Twojego domu</p>
+            <h1>🛋️ TOP Furniture Product Catalog</h1>
+            <p>Modern furniture for your home</p>
         </div>
     </header>
 
@@ -634,20 +634,20 @@
                     type="text" 
                     id="searchInput" 
                     class="search-input" 
-                    placeholder="🔍 Szukaj produktów..."
+                    placeholder="🔍 Search products..."
                 >
                 <select id="sortSelect" class="select-box">
-                    <option value="">Sortuj według...</option>
-                    <option value="price-asc">Cena: rosnąco</option>
-                    <option value="price-desc">Cena: malejąco</option>
-                    <option value="name-asc">Nazwa: A-Z</option>
-                    <option value="name-desc">Nazwa: Z-A</option>
-                    <option value="stock-desc">Dostępność: wysoka</option>
+                    <option value="">Sort by...</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="name-asc">Name: A-Z</option>
+                    <option value="name-desc">Name: Z-A</option>
+                    <option value="stock-desc">Availability: High</option>
                 </select>
             </div>
 
             <div class="filter-section">
-                <h3>Kategorie:</h3>
+                <h3>Categories:</h3>
                 <div id="categoryFilters" class="category-filters">
                     <!-- Generated dynamically -->
                 </div>
@@ -657,17 +657,20 @@
         <!-- Action Bar -->
         <div class="action-bar">
             <div class="stats">
-                Wyświetlane: <strong id="displayedCount">0</strong> z <strong id="totalCount">0</strong> produktów
+                Showing: <strong id="displayedCount">0</strong> of <strong id="totalCount">0</strong> products
                 <span id="selectedCount" style="margin-left: 15px;"></span>
             </div>
 
             <div class="download-controls">
+                <button id="selectAllBtn" class="btn btn-secondary">
+                    ✓ Select All
+                </button>
                 <div class="image-type-toggle">
-                    <button id="mainImageBtn" class="active" data-type="main">Główne zdjęcia</button>
-                    <button id="allImagesBtn" data-type="all">Wszystkie zdjęcia</button>
+                    <button id="mainImageBtn" class="active" data-type="main">Main Images</button>
+                    <button id="allImagesBtn" data-type="all">All Images</button>
                 </div>
                 <button id="downloadBtn" class="btn btn-primary" disabled>
-                    📥 Pobierz zaznaczone
+                    📥 Download Selected
                 </button>
             </div>
         </div>
@@ -675,7 +678,7 @@
         <!-- Loading -->
         <div id="loading" class="loading">
             <div class="spinner"></div>
-            <p>Ładowanie produktów...</p>
+            <p>Loading products...</p>
         </div>
 
         <!-- Error -->
@@ -686,8 +689,8 @@
 
         <!-- Empty State -->
         <div id="emptyState" class="empty-state" style="display: none;">
-            <h2>Nie znaleziono produktów</h2>
-            <p>Spróbuj zmienić kryteria wyszukiwania</p>
+            <h2>No products found</h2>
+            <p>Try changing your search criteria</p>
         </div>
     </div>
 
@@ -703,15 +706,15 @@
                 <h2 id="modalTitle" class="modal-title"></h2>
                 <div id="modalPrice" class="modal-price"></div>
                 <div class="modal-section">
-                    <h3>Opis</h3>
+                    <h3>Description</h3>
                     <div id="modalDescription" class="modal-section-content"></div>
                 </div>
                 <div class="modal-section">
-                    <h3>Specyfikacja techniczna</h3>
+                    <h3>Technical Specifications</h3>
                     <div id="modalTechDesc" class="modal-section-content"></div>
                 </div>
                 <div class="modal-section">
-                    <h3>Szczegóły</h3>
+                    <h3>Details</h3>
                     <div id="modalAttrs" class="modal-attrs"></div>
                 </div>
             </div>
@@ -720,7 +723,7 @@
 
     <!-- Progress -->
     <div id="progressContainer" class="progress-container">
-        <div id="progressText">Generowanie archiwum...</div>
+        <div id="progressText">Generating archive...</div>
         <div class="progress-bar">
             <div id="progressFill" class="progress-fill" style="width: 0%"></div>
         </div>
@@ -746,6 +749,7 @@
         const totalCount = document.getElementById('totalCount');
         const selectedCount = document.getElementById('selectedCount');
         const downloadBtn = document.getElementById('downloadBtn');
+        const selectAllBtn = document.getElementById('selectAllBtn');
         const mainImageBtn = document.getElementById('mainImageBtn');
         const allImagesBtn = document.getElementById('allImagesBtn');
         const modal = document.getElementById('productModal');
@@ -763,7 +767,7 @@
                 allProducts = parseXML(xmlData);
                 
                 if (allProducts.length === 0) {
-                    throw new Error('Brak produktów w XML');
+                    throw new Error('No products in XML');
                 }
                 
                 setupCategoryFilters();
@@ -777,9 +781,9 @@
                 error.style.display = 'block';
                 error.className = 'error';
                 error.innerHTML = `
-                    <strong>Błąd ładowania produktów:</strong><br>
+                    <strong>Error loading products:</strong><br>
                     ${err.message}<br><br>
-                    <small>Sprawdź czy URL XML jest dostępny lub czy nie ma problemów z CORS.</small>
+                    <small>Check if the XML URL is accessible or if there are CORS issues.</small>
                 `;
             }
         }
@@ -800,7 +804,7 @@
                 const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
                 const response = await fetch(proxyUrl);
                 if (!response.ok) {
-                    throw new Error(`Nie można pobrać danych. Sprawdź połączenie.`);
+                    throw new Error(`Cannot fetch data. Check your connection.`);
                 }
                 const text = await response.text();
                 return new DOMParser().parseFromString(text, 'text/xml');
@@ -981,7 +985,7 @@
                         ${selectedProducts.has(product.id) ? 'checked' : ''}
                     >
                     <img 
-                        src="${product.images.main || 'https://via.placeholder.com/300x280?text=Brak+zdjęcia'}" 
+                        src="${product.images.main || 'https://via.placeholder.com/300x280?text=No+Image'}" 
                         alt="${product.name}"
                         class="product-image"
                     >
@@ -1021,9 +1025,9 @@
         }
 
         function getStockText(stock) {
-            if (stock === 0) return 'Brak';
-            if (stock < 10) return `Mało (${stock})`;
-            return `Dostępne (${stock})`;
+            if (stock === 0) return 'Out of Stock';
+            if (stock < 10) return `Low (${stock})`;
+            return `Available (${stock})`;
         }
 
         // Checkbox handling
@@ -1046,11 +1050,42 @@
             totalCount.textContent = allProducts.length;
             
             if (selectedProducts.size > 0) {
-                selectedCount.innerHTML = `| Zaznaczone: <strong>${selectedProducts.size}</strong>`;
+                selectedCount.innerHTML = `| Selected: <strong>${selectedProducts.size}</strong>`;
                 downloadBtn.disabled = false;
             } else {
                 selectedCount.innerHTML = '';
                 downloadBtn.disabled = true;
+            }
+            
+            // Update Select All button text
+            updateSelectAllButton();
+        }
+
+        // Select All / Deselect All functionality
+        selectAllBtn.addEventListener('click', () => {
+            const displayedIds = filteredProducts.map(p => p.id);
+            const allDisplayedSelected = displayedIds.every(id => selectedProducts.has(id));
+            
+            if (allDisplayedSelected) {
+                // Deselect all displayed
+                displayedIds.forEach(id => selectedProducts.delete(id));
+            } else {
+                // Select all displayed
+                displayedIds.forEach(id => selectedProducts.add(id));
+            }
+            
+            renderProducts();
+            updateStats();
+        });
+
+        function updateSelectAllButton() {
+            const displayedIds = filteredProducts.map(p => p.id);
+            const allDisplayedSelected = displayedIds.length > 0 && displayedIds.every(id => selectedProducts.has(id));
+            
+            if (allDisplayedSelected) {
+                selectAllBtn.innerHTML = '✗ Deselect All';
+            } else {
+                selectAllBtn.innerHTML = '✓ Select All';
             }
         }
 
@@ -1073,7 +1108,7 @@
             
             try {
                 downloadBtn.disabled = true;
-                downloadBtn.textContent = 'Pobieranie...';
+                downloadBtn.textContent = 'Downloading...';
                 progressContainer.classList.add('active');
                 
                 const zip = new JSZip();
@@ -1112,7 +1147,7 @@
                             const response = await fetch(proxyUrl);
                             
                             if (!response.ok) {
-                                console.error(`Błąd HTTP ${response.status} dla ${imageUrl}`);
+                                console.error(`HTTP Error ${response.status} for ${imageUrl}`);
                                 continue;
                             }
                             
@@ -1128,17 +1163,17 @@
                             const progress = Math.round((downloadedImages / totalImages) * 100);
                             document.getElementById('progressFill').style.width = progress + '%';
                             document.getElementById('progressText').textContent = 
-                                `Pobieranie zdjęć ${downloadedImages}/${totalImages}...`;
+                                `Downloading images ${downloadedImages}/${totalImages}...`;
                                 
                         } catch (err) {
-                            console.error(`Błąd pobierania ${imageUrl}:`, err);
+                            console.error(`Error downloading ${imageUrl}:`, err);
                         }
                     }
                     
                     processed++;
                 }
                 
-                document.getElementById('progressText').textContent = 'Generowanie archiwum...';
+                document.getElementById('progressText').textContent = 'Generating archive...';
                 const content = await zip.generateAsync({ type: 'blob' });
                 
                 const link = document.createElement('a');
@@ -1149,14 +1184,14 @@
                 setTimeout(() => {
                     progressContainer.classList.remove('active');
                     downloadBtn.disabled = false;
-                    downloadBtn.textContent = '📥 Pobierz zaznaczone';
+                    downloadBtn.textContent = '📥 Download Selected';
                 }, 500);
                 
             } catch (err) {
-                alert('Wystąpił błąd podczas pobierania zdjęć: ' + err.message);
+                alert('Error downloading images: ' + err.message);
                 progressContainer.classList.remove('active');
                 downloadBtn.disabled = false;
-                downloadBtn.textContent = '📥 Pobierz zaznaczone';
+                downloadBtn.textContent = '📥 Download Selected';
             }
         });
 
@@ -1176,8 +1211,8 @@
             
             document.getElementById('modalTitle').textContent = product.name;
             document.getElementById('modalPrice').textContent = `${product.price.toFixed(2)} zł`;
-            document.getElementById('modalDescription').innerHTML = product.description || 'Brak opisu';
-            document.getElementById('modalTechDesc').innerHTML = product.techDescription || 'Brak specyfikacji';
+            document.getElementById('modalDescription').innerHTML = product.description || 'No description available';
+            document.getElementById('modalTechDesc').innerHTML = product.techDescription || 'No specifications available';
             
             // Attributes
             const attrsHtml = Object.entries(product.attributes)
@@ -1197,7 +1232,7 @@
                 const thumbnailsHtml = product.images.all.map((img, idx) => `
                     <img 
                         src="${img}" 
-                        alt="Zdjęcie ${idx + 1}"
+                        alt="Image ${idx + 1}"
                         class="modal-thumbnail ${idx === 0 ? 'active' : ''}"
                         data-url="${img}"
                     >
@@ -1212,7 +1247,7 @@
                     });
                 });
             } else {
-                document.getElementById('modalMainImage').src = 'https://via.placeholder.com/400?text=Brak+zdjęcia';
+                document.getElementById('modalMainImage').src = 'https://via.placeholder.com/400?text=No+Image';
                 document.getElementById('modalThumbnails').innerHTML = '';
             }
             
