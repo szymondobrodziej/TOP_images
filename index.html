@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Produktów - TOP Meble</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #8B7355;
+            --secondary: #D4C5B9;
+            --accent: #B8956A;
+            --bg: #FAFAF8;
+            --text: #2C2C2C;
+            --white: #FFFFFF;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --shadow-lg: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #F5F3F0 100%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: var(--white);
+            padding: 30px 0;
+            box-shadow: 0 4px 20px var(--shadow-lg);
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        header p {
+            text-align: center;
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        /* Controls */
+        .controls {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 14px 20px;
+            border: 2px solid var(--secondary);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(184, 149, 106, 0.1);
+        }
+
+        .select-box {
+            padding: 14px 20px;
+            border: 2px solid var(--secondary);
+            border-radius: 10px;
+            font-size: 1rem;
+            background: var(--white);
+            cursor: pointer;
+            min-width: 200px;
+            transition: all 0.3s;
+        }
+
+        .select-box:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .filter-section {
+            margin-top: 20px;
+        }
+
+        .filter-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .category-filter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--bg);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .category-filter:hover {
+            background: var(--secondary);
+            border-color: var(--accent);
+        }
+
+        .category-filter input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .category-filter label {
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            background: var(--white);
+            padding: 20px 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px var(--shadow);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stats {
+            font-size: 0.95rem;
+            color: var(--primary);
+        }
+
+        .stats strong {
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        .download-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .image-type-toggle {
+            display: flex;
+            background: var(--bg);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--secondary);
+        }
+
+        .image-type-toggle button {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            color: var(--text);
+        }
+
+        .image-type-toggle button.active {
+            background: var(--accent);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow-lg);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid var(--secondary);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .product-card {
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px var(--shadow);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 35px var(--shadow-lg);
+        }
+
+        .product-checkbox {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            z-index: 10;
+            accent-color: var(--accent);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            background: var(--bg);
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-category {
+            display: inline-block;
+            background: var(--secondary);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .product-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 12px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid var(--bg);
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .product-stock {
+            font-size: 0.9rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .in-stock {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .low-stock {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+
+        .out-of-stock {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 20px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-close {
+            position: sticky;
+            top: 0;
+            right: 0;
+            float: right;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            cursor: pointer;
+            padding: 15px 25px;
+            background: var(--white);
+            z-index: 10;
+            border-radius: 0 20px 0 0;
+        }
+
+        .modal-close:hover {
+            color: var(--accent);
+        }
+
+        .modal-gallery {
+            padding: 20px;
+        }
+
+        .modal-main-image {
+            width: 100%;
+            height: 400px;
+            object-fit: contain;
+            background: var(--bg);
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .modal-thumbnails {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .modal-thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .modal-thumbnail:hover,
+        .modal-thumbnail.active {
+            border-color: var(--accent);
+        }
+
+        .modal-body {
+            padding: 0 20px 20px;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .modal-price {
+            font-size: 2rem;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section h3 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 8px;
+        }
+
+        .modal-section-content {
+            color: var(--text);
+            line-height: 1.8;
+        }
+
+        .modal-section-content ul {
+            padding-left: 20px;
+        }
+
+        .modal-section-content li {
+            margin-bottom: 8px;
+        }
+
+        .modal-attrs {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+        }
+
+        .modal-attr {
+            background: var(--bg);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .modal-attr strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-state h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            color: var(--text);
+            font-size: 1.1rem;
+            opacity: 0.7;
+        }
+
+        /* Error */
+        .error {
+            background: #FFEBEE;
+            color: #C62828;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #C62828;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 15px;
+            }
+
+            .search-bar {
+                flex-direction: column;
+            }
+
+            .search-input,
+            .select-box {
+                width: 100%;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .download-controls {
+                flex-direction: column;
+            }
+
+            .modal-main-image {
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--white);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px var(--shadow-lg);
+            min-width: 300px;
+            z-index: 999;
+            display: none;
+        }
+
+        .progress-container.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: var(--bg);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🛋️ Katalog Produktów TOP Meble</h1>
+            <p>Nowoczesne meble dla Twojego domu</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-bar">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="🔍 Szukaj produktów..."
+                >
+                <select id="sortSelect" class="select-box">
+                    <option value="">Sortuj według...</option>
+                    <option value="price-asc">Cena: rosnąco</option>
+                    <option value="price-desc">Cena: malejąco</option>
+                    <option value="name-asc">Nazwa: A-Z</option>
+                    <option value="name-desc">Nazwa: Z-A</option>
+                    <option value="stock-desc">Dostępność: wysoka</option>
+                </select>
+            </div>
+
+            <div class="filter-section">
+                <h3>Kategorie:</h3>
+                <div id="categoryFilters" class="category-filters">
+                    <!-- Generated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <div class="stats">
+                Wyświetlane: <strong id="displayedCount">0</strong> z <strong id="totalCount">0</strong> produktów
+                <span id="selectedCount" style="margin-left: 15px;"></span>
+            </div>
+
+            <div class="download-controls">
+                <div class="image-type-toggle">
+                    <button id="mainImageBtn" class="active" data-type="main">Główne zdjęcia</button>
+                    <button id="allImagesBtn" data-type="all">Wszystkie zdjęcia</button>
+                </div>
+                <button id="downloadBtn" class="btn btn-primary" disabled>
+                    📥 Pobierz zaznaczone
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Ładowanie produktów...</p>
+        </div>
+
+        <!-- Error -->
+        <div id="error" style="display: none;"></div>
+
+        <!-- Products Grid -->
+        <div id="productGrid" class="product-grid"></div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h2>Nie znaleziono produktów</h2>
+            <p>Spróbuj zmienić kryteria wyszukiwania</p>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="modal-gallery">
+                <img id="modalMainImage" class="modal-main-image" src="" alt="">
+                <div id="modalThumbnails" class="modal-thumbnails"></div>
+            </div>
+            <div class="modal-body">
+                <h2 id="modalTitle" class="modal-title"></h2>
+                <div id="modalPrice" class="modal-price"></div>
+                <div class="modal-section">
+                    <h3>Opis</h3>
+                    <div id="modalDescription" class="modal-section-content"></div>
+                </div>
+                <div class="modal-section">
+                    <h3>Specyfikacja techniczna</h3>
+                    <div id="modalTechDesc" class="modal-section-content"></div>
+                </div>
+                <div class="modal-section">
+                    <h3>Szczegóły</h3>
+                    <div id="modalAttrs" class="modal-attrs"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress -->
+    <div id="progressContainer" class="progress-container">
+        <div id="progressText">Generowanie archiwum...</div>
+        <div class="progress-bar">
+            <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let allProducts = [];
+        let filteredProducts = [];
+        let selectedCategories = new Set();
+        let imageType = 'main'; // 'main' or 'all'
+        let selectedProducts = new Set();
+
+        // DOM Elements
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+        const categoryFilters = document.getElementById('categoryFilters');
+        const productGrid = document.getElementById('productGrid');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const emptyState = document.getElementById('emptyState');
+        const displayedCount = document.getElementById('displayedCount');
+        const totalCount = document.getElementById('totalCount');
+        const selectedCount = document.getElementById('selectedCount');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const mainImageBtn = document.getElementById('mainImageBtn');
+        const allImagesBtn = document.getElementById('allImagesBtn');
+        const modal = document.getElementById('productModal');
+        const modalClose = document.querySelector('.modal-close');
+        const progressContainer = document.getElementById('progressContainer');
+
+        // Initialize
+        async function init() {
+            try {
+                loading.style.display = 'block';
+                error.style.display = 'none';
+                productGrid.innerHTML = '';
+                
+                const xmlData = await fetchXML();
+                allProducts = parseXML(xmlData);
+                
+                if (allProducts.length === 0) {
+                    throw new Error('Brak produktów w XML');
+                }
+                
+                setupCategoryFilters();
+                filteredProducts = [...allProducts];
+                renderProducts();
+                updateStats();
+                
+                loading.style.display = 'none';
+            } catch (err) {
+                loading.style.display = 'none';
+                error.style.display = 'block';
+                error.className = 'error';
+                error.innerHTML = `
+                    <strong>Błąd ładowania produktów:</strong><br>
+                    ${err.message}<br><br>
+                    <small>Sprawdź czy URL XML jest dostępny lub czy nie ma problemów z CORS.</small>
+                `;
+            }
+        }
+
+        // Fetch XML
+        async function fetchXML() {
+            const url = 'https://b2b.topeshop.pl/pl/purchases/articles/exportxmlview';
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const text = await response.text();
+                return new DOMParser().parseFromString(text, 'text/xml');
+            } catch (err) {
+                // Try with CORS proxy as fallback
+                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+                const response = await fetch(proxyUrl);
+                if (!response.ok) {
+                    throw new Error(`Nie można pobrać danych. Sprawdź połączenie.`);
+                }
+                const text = await response.text();
+                return new DOMParser().parseFromString(text, 'text/xml');
+            }
+        }
+
+        // Parse XML
+        function parseXML(xml) {
+            const products = [];
+            const offers = xml.querySelectorAll('o');
+            
+            offers.forEach(offer => {
+                const product = {
+                    id: offer.getAttribute('id'),
+                    url: offer.getAttribute('url'),
+                    available: offer.getAttribute('avail') === '1',
+                    price: parseFloat(offer.getAttribute('price')) || 0,
+                    stock: parseInt(offer.getAttribute('stock')) || 0,
+                    weight: parseFloat(offer.getAttribute('weight')) || 0,
+                    category: getTextContent(offer, 'cat'),
+                    name: getTextContent(offer, 'name'),
+                    description: getTextContent(offer, 'desc'),
+                    techDescription: getTextContent(offer, 'techdesc'),
+                    images: parseImages(offer),
+                    attributes: parseAttributes(offer)
+                };
+                
+                if (product.name) {
+                    products.push(product);
+                }
+            });
+            
+            return products;
+        }
+
+        function getTextContent(element, tagName) {
+            const tag = element.querySelector(tagName);
+            return tag ? tag.textContent.trim() : '';
+        }
+
+        function parseImages(offer) {
+            const images = {
+                main: '',
+                all: []
+            };
+            
+            const imgsTag = offer.querySelector('imgs');
+            if (imgsTag) {
+                const mainTag = imgsTag.querySelector('main');
+                if (mainTag) {
+                    images.main = mainTag.getAttribute('url');
+                    images.all.push(mainTag.getAttribute('url'));
+                }
+                
+                const iTags = imgsTag.querySelectorAll('i');
+                iTags.forEach(i => {
+                    images.all.push(i.getAttribute('url'));
+                });
+            }
+            
+            return images;
+        }
+
+        function parseAttributes(offer) {
+            const attrs = {};
+            const attrTags = offer.querySelectorAll('attrs > a');
+            
+            attrTags.forEach(a => {
+                const name = a.getAttribute('name');
+                const value = a.textContent.trim();
+                if (name && value) {
+                    attrs[name] = value;
+                }
+            });
+            
+            return attrs;
+        }
+
+        // Setup category filters
+        function setupCategoryFilters() {
+            const categories = [...new Set(allProducts.map(p => p.category))].filter(Boolean).sort();
+            
+            categoryFilters.innerHTML = categories.map(cat => `
+                <div class="category-filter">
+                    <input type="checkbox" id="cat-${cat}" value="${cat}">
+                    <label for="cat-${cat}">${cat}</label>
+                </div>
+            `).join('');
+            
+            categoryFilters.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', handleCategoryChange);
+            });
+        }
+
+        // Filter and render
+        function handleCategoryChange(e) {
+            if (e.target.checked) {
+                selectedCategories.add(e.target.value);
+            } else {
+                selectedCategories.delete(e.target.value);
+            }
+            applyFilters();
+        }
+
+        searchInput.addEventListener('input', applyFilters);
+        sortSelect.addEventListener('change', applyFilters);
+
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            // Filter
+            filteredProducts = allProducts.filter(product => {
+                // Category filter
+                if (selectedCategories.size > 0 && !selectedCategories.has(product.category)) {
+                    return false;
+                }
+                
+                // Search filter
+                if (searchTerm) {
+                    const searchableText = [
+                        product.name,
+                        product.category,
+                        product.description,
+                        product.techDescription,
+                        ...Object.values(product.attributes)
+                    ].join(' ').toLowerCase();
+                    
+                    if (!searchableText.includes(searchTerm)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            // Sort
+            const sortValue = sortSelect.value;
+            if (sortValue) {
+                filteredProducts.sort((a, b) => {
+                    switch (sortValue) {
+                        case 'price-asc':
+                            return a.price - b.price;
+                        case 'price-desc':
+                            return b.price - a.price;
+                        case 'name-asc':
+                            return a.name.localeCompare(b.name);
+                        case 'name-desc':
+                            return b.name.localeCompare(a.name);
+                        case 'stock-desc':
+                            return b.stock - a.stock;
+                        default:
+                            return 0;
+                    }
+                });
+            }
+            
+            renderProducts();
+            updateStats();
+        }
+
+        // Render products
+        function renderProducts() {
+            if (filteredProducts.length === 0) {
+                productGrid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            productGrid.style.display = 'grid';
+            emptyState.style.display = 'none';
+            
+            productGrid.innerHTML = filteredProducts.map(product => `
+                <div class="product-card" data-id="${product.id}">
+                    <input 
+                        type="checkbox" 
+                        class="product-checkbox" 
+                        data-id="${product.id}"
+                        ${selectedProducts.has(product.id) ? 'checked' : ''}
+                    >
+                    <img 
+                        src="${product.images.main || 'https://via.placeholder.com/300x280?text=Brak+zdjęcia'}" 
+                        alt="${product.name}"
+                        class="product-image"
+                    >
+                    <div class="product-info">
+                        <span class="product-category">${product.category}</span>
+                        <h3 class="product-name">${product.name}</h3>
+                        <div class="product-details">
+                            <span class="product-price">${product.price.toFixed(2)} zł</span>
+                            <span class="product-stock ${getStockClass(product.stock)}">
+                                ${getStockText(product.stock)}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Attach event listeners
+            document.querySelectorAll('.product-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', handleCheckboxChange);
+                checkbox.addEventListener('click', (e) => e.stopPropagation());
+            });
+            
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('product-checkbox')) {
+                        const productId = card.dataset.id;
+                        showProductModal(productId);
+                    }
+                });
+            });
+        }
+
+        function getStockClass(stock) {
+            if (stock === 0) return 'out-of-stock';
+            if (stock < 10) return 'low-stock';
+            return 'in-stock';
+        }
+
+        function getStockText(stock) {
+            if (stock === 0) return 'Brak';
+            if (stock < 10) return `Mało (${stock})`;
+            return `Dostępne (${stock})`;
+        }
+
+        // Checkbox handling
+        function handleCheckboxChange(e) {
+            e.stopPropagation();
+            const productId = e.target.dataset.id;
+            
+            if (e.target.checked) {
+                selectedProducts.add(productId);
+            } else {
+                selectedProducts.delete(productId);
+            }
+            
+            updateStats();
+        }
+
+        // Update statistics
+        function updateStats() {
+            displayedCount.textContent = filteredProducts.length;
+            totalCount.textContent = allProducts.length;
+            
+            if (selectedProducts.size > 0) {
+                selectedCount.innerHTML = `| Zaznaczone: <strong>${selectedProducts.size}</strong>`;
+                downloadBtn.disabled = false;
+            } else {
+                selectedCount.innerHTML = '';
+                downloadBtn.disabled = true;
+            }
+        }
+
+        // Image type toggle
+        mainImageBtn.addEventListener('click', () => {
+            imageType = 'main';
+            mainImageBtn.classList.add('active');
+            allImagesBtn.classList.remove('active');
+        });
+
+        allImagesBtn.addEventListener('click', () => {
+            imageType = 'all';
+            allImagesBtn.classList.add('active');
+            mainImageBtn.classList.remove('active');
+        });
+
+        // Download images
+        downloadBtn.addEventListener('click', async () => {
+            if (selectedProducts.size === 0) return;
+            
+            try {
+                downloadBtn.disabled = true;
+                downloadBtn.textContent = 'Pobieranie...';
+                progressContainer.classList.add('active');
+                
+                const zip = new JSZip();
+                const productsToDownload = allProducts.filter(p => selectedProducts.has(p.id));
+                let processed = 0;
+                
+                for (const product of productsToDownload) {
+                    const folderName = sanitizeFilename(product.attributes['Numer_katalogowy'] || product.name);
+                    const folder = zip.folder(folderName);
+                    
+                    const images = imageType === 'main' 
+                        ? [product.images.main].filter(Boolean)
+                        : product.images.all;
+                    
+                    for (let i = 0; i < images.length; i++) {
+                        const imageUrl = images[i];
+                        if (!imageUrl) continue;
+                        
+                        try {
+                            const response = await fetch(imageUrl);
+                            const blob = await response.blob();
+                            const ext = getFileExtension(imageUrl);
+                            const filename = i === 0 && imageType === 'all' 
+                                ? `main${ext}` 
+                                : `${i + 1}${ext}`;
+                            
+                            folder.file(filename, blob);
+                        } catch (err) {
+                            console.error(`Błąd pobierania ${imageUrl}:`, err);
+                        }
+                    }
+                    
+                    processed++;
+                    const progress = Math.round((processed / productsToDownload.length) * 100);
+                    document.getElementById('progressFill').style.width = progress + '%';
+                    document.getElementById('progressText').textContent = 
+                        `Przetwarzanie ${processed}/${productsToDownload.length}...`;
+                }
+                
+                document.getElementById('progressText').textContent = 'Generowanie archiwum...';
+                const content = await zip.generateAsync({ type: 'blob' });
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = `produkty_${new Date().toISOString().slice(0, 10)}.zip`;
+                link.click();
+                
+                progressContainer.classList.remove('active');
+                downloadBtn.disabled = false;
+                downloadBtn.textContent = '📥 Pobierz zaznaczone';
+                
+            } catch (err) {
+                alert('Wystąpił błąd podczas pobierania zdjęć: ' + err.message);
+                progressContainer.classList.remove('active');
+                downloadBtn.disabled = false;
+                downloadBtn.textContent = '📥 Pobierz zaznaczone';
+            }
+        });
+
+        function sanitizeFilename(name) {
+            return name.replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_');
+        }
+
+        function getFileExtension(url) {
+            const match = url.match(/\.(jpg|jpeg|png|gif|webp)/i);
+            return match ? match[0] : '.jpg';
+        }
+
+        // Modal
+        function showProductModal(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+            
+            document.getElementById('modalTitle').textContent = product.name;
+            document.getElementById('modalPrice').textContent = `${product.price.toFixed(2)} zł`;
+            document.getElementById('modalDescription').innerHTML = product.description || 'Brak opisu';
+            document.getElementById('modalTechDesc').innerHTML = product.techDescription || 'Brak specyfikacji';
+            
+            // Attributes
+            const attrsHtml = Object.entries(product.attributes)
+                .map(([key, value]) => `
+                    <div class="modal-attr">
+                        <strong>${key.replace(/_/g, ' ')}</strong>
+                        ${value}
+                    </div>
+                `).join('');
+            document.getElementById('modalAttrs').innerHTML = attrsHtml;
+            
+            // Images
+            if (product.images.all.length > 0) {
+                const firstImage = product.images.all[0];
+                document.getElementById('modalMainImage').src = firstImage;
+                
+                const thumbnailsHtml = product.images.all.map((img, idx) => `
+                    <img 
+                        src="${img}" 
+                        alt="Zdjęcie ${idx + 1}"
+                        class="modal-thumbnail ${idx === 0 ? 'active' : ''}"
+                        data-url="${img}"
+                    >
+                `).join('');
+                document.getElementById('modalThumbnails').innerHTML = thumbnailsHtml;
+                
+                document.querySelectorAll('.modal-thumbnail').forEach(thumb => {
+                    thumb.addEventListener('click', () => {
+                        document.querySelector('.modal-thumbnail.active')?.classList.remove('active');
+                        thumb.classList.add('active');
+                        document.getElementById('modalMainImage').src = thumb.dataset.url;
+                    });
+                });
+            } else {
+                document.getElementById('modalMainImage').src = 'https://via.placeholder.com/400?text=Brak+zdjęcia';
+                document.getElementById('modalThumbnails').innerHTML = '';
+            }
+            
+            modal.classList.add('active');
+        }
+
+        modalClose.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+
+        // Initialize app
+        init();
+    </script>
+</body>
+</html>
