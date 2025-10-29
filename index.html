@@ -1213,8 +1213,9 @@
             document.getElementById('modalDescription').innerHTML = product.description || 'No description available';
             document.getElementById('modalTechDesc').innerHTML = product.techDescription || 'No specifications available';
             
-            // Attributes
+            // Attributes (filter out price-related fields)
             const attrsHtml = Object.entries(product.attributes)
+                .filter(([key]) => key !== 'Koszt_dostawy')
                 .map(([key, value]) => `
                     <div class="modal-attr">
                         <strong>${key.replace(/_/g, ' ')}</strong>
